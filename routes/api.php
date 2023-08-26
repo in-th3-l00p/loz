@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,7 @@ Route::post("/login", function (Request $request) {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get("users", );
+    Route::get("user", fn () => Auth::user() )->name("current_user");
+    Route::apiResource("users", UserController::class)->only("show");
     Route::apiResource("maps", MapController::class);
 });
