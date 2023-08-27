@@ -3,63 +3,50 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
+use App\Models\Map;
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Map $map)
     {
-        //
+        return $map->load("locations")->locations;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request, Map $map)
     {
-        //
+        $data = $request->validate([
+            "x" => "requried|numeric",
+            "y" => "requried|numeric",
+            "width" => "requried|numeric",
+            "height" => "requried|numeric"
+        ]);
+
+        Location::factory()->create([
+            ...$data,
+            "map_id" => $map->id
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Location $location)
     {
-        //
+        return $location;
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Location $location)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Location $location)
     {
-        //
+        $location->update($request->validate([
+            "available" => "bail|boolean|nullable",
+            "winner" => "bail|boolean|nullable",
+            "winner_text" => "bail|nullable|alpha_num",
+            "action_end" => "bail|date|nullable",
+            "min_price" => "bail|numeric|nullable",
+            "max_price" => "bail|numeric|nullable"
+        ]));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Location $location)
     {
-        //
+        $location->delete();
     }
 }

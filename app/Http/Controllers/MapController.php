@@ -42,11 +42,16 @@ class MapController extends Controller
 
     public function update(Request $request, Map $map)
     {
-        //
+        $map->update($request->validate([
+            "name" => "bail|min:1|max:255|unique:maps,name",
+            "width" => "bail|numeric",
+            "height" => "bail|numeric",
+            "image" => "bail",
+        ]));
     }
 
     public function destroy(Map $map)
     {
-        //
+        $map->delete();
     }
 }

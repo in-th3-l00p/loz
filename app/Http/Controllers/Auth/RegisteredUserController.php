@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
@@ -24,16 +25,22 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'telephone' => ["required", "size:10"],
-            "pfp" => ["image", "mimetype:image/jpg,image/png"]
+            'phone' => ["required", "size:10"],
+            "pfp" => ["image", "mimetypes:image/png"]
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            "telephone" => $request->telephone
+            "phone" => $request->phone
         ]);
+
+        if (isset($request->pfp)) {
+            $path = "pfp/" . $user->id . ".png";
+            Storage::disk("public")->put($path, $request->pfp);
+            $user->update(["pfp_path", $path]);
+        }
 
         event(new Registered($user));
 

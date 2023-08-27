@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
@@ -23,8 +24,12 @@ Route::post("/login", function (Request $request) {
     ]);
 });
 
+Route::apiResource("maps", MapController::class)->only(["index", "show"]);
+Route::apiResource("maps.locations", LocationController::class)->only(["index", "show"])->scoped();
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get("user", fn () => Auth::user() )->name("current_user");
     Route::apiResource("users", UserController::class)->only("show");
-    Route::apiResource("maps", MapController::class);
+    Route::apiResource("maps", MapController::class)->only(["store", "update", "destroy"]);
+    Route::apiResource("maps.locations", LocationController::class)->only(["store", "update", "destroy"])->scoped();
 });
