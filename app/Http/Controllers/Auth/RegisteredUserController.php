@@ -24,12 +24,15 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'telephone' => ["required", "size:10"],
+            "pfp" => ["image", "mimetype:image/jpg,image/png"]
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            "telephone" => $request->telephone
         ]);
 
         event(new Registered($user));
