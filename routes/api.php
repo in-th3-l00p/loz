@@ -3,6 +3,7 @@
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\UserController;
+use App\Models\Location;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,11 +26,16 @@ Route::post("/login", function (Request $request) {
 });
 
 Route::apiResource("maps", MapController::class)->only(["index", "show"]);
-Route::apiResource("maps.locations", LocationController::class)->only(["index", "show"])->scoped();
-
+Route::apiResource("users", UserController::class)->only("show");
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get("user", fn () => Auth::user() )->name("current_user");
-    Route::apiResource("users", UserController::class)->only("show");
     Route::apiResource("maps", MapController::class)->only(["store", "update", "destroy"]);
-    Route::apiResource("maps.locations", LocationController::class)->only(["store", "update", "destroy"])->scoped();
+
+    Route::apiResource("maps.locations", LocationController::class)
+        ->scoped()
+        ->only(["show", "update"]);
+    Route::put(
+        "maps/{map}/locations/{location}/claim", 
+        [LocationController::class, "claim"]
+    )->name("maps.locations.claim");
 });

@@ -20,7 +20,12 @@ class LocationResource extends JsonResource
                 $this->x, $this->y, 
                 $this->x + $this->width, 
                 $this->y + $this->height
-            ]
+            ],
+            "available" => $this->available,
+            "claimed_by" => $this->whenNotNull($this->user_id),
+            "winner" => $this->when(!$this->available, $this->winner),
+            "winner_text" => $this->when(!$this->available, $this->whenNotNull($this->winner_text)),
+            "claimed_at" => $this->whenNotNull($this->claimed_at)
         ];
     }
 }

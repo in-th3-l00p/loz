@@ -2,56 +2,54 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\LocationResource;
 use App\Models\Location;
 use App\Models\Map;
-use App\Policies\LocationPolicy;
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
     public function __construct() {
-        $this->authorizeResource(Location::class, "location");
     }
 
-    public function index(Map $map)
-    {
-        return $map->load("locations")->locations;
-    }
+    public function index() { }
 
-    public function store(Request $request, Map $map)
-    {
-        $data = $request->validate([
-            "x" => "requried|numeric",
-            "y" => "requried|numeric",
-            "width" => "requried|numeric",
-            "height" => "requried|numeric"
-        ]);
+    public function store(Request $request) { }
 
-        Location::factory()->create([
-            ...$data,
-            "map_id" => $map->id
-        ]);
-    }
-
-    public function show(Location $location)
+    public function show($map, $location)
     {
-        return $location;
+        $map = Map::findOrFail($map);
+        $location = Location::findOrFail($location);
+        return new LocationResource($location);
     }
 
     public function update(Request $request, Location $location)
     {
-        $location->update($request->validate([
-            "available" => "bail|boolean|nullable",
-            "winner" => "bail|boolean|nullable",
-            "winner_text" => "bail|nullable|alpha_num",
-            "action_end" => "bail|date|nullable",
-            "min_price" => "bail|numeric|nullable",
-            "max_price" => "bail|numeric|nullable"
-        ]));
+        $request->validate(["winner" => "required|boolean"]);
+        if ($request->winner) {
+            $request->validate(["winner_text" => "required"]);
+            $location->update([
+                "winner" => $request->winner,
+                "winner_text" => $request->winner_text
+            ]);
+        } else {
+            $location->update([ "winner" => $request->winner ]);
+        }
     }
 
-    public function destroy(Location $location)
-    {
-        $location->delete();
+    public function claim(string $map, string $location, Request $request) {
+        $map = Map::findOrFail($map);
+        $location = Location::findOrFail($location);
+        if (!$location->available) {
+            abort(403);
+        }
+
+        $location->update([
+            "available" => false,
+            "claimed_at" => now(),
+            "user_id" => auth()->user()->id
+        ]);
     }
+
+    public function destroy(Location $location) { }
 }
