@@ -20,6 +20,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->string("phone");
             $table->string("pfp_path")->nullable();
+            $table->boolean("admin")->default(false);
             $table->timestamps();
         });
     }

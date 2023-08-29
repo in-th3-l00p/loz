@@ -4,11 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\MapResource;
 use App\Models\Map;
+use App\Policies\MapPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class MapController extends Controller
 {
+    public function __construct() {
+        $this->authorizeResource(Map::class, "map");
+    }
+
     public function index()
     {
         return MapResource::collection(Map::all()->load("locations"));

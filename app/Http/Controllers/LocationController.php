@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Location;
 use App\Models\Map;
+use App\Policies\LocationPolicy;
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
+    public function __construct() {
+        $this->authorizeResource(Location::class, "location");
+    }
+
     public function index(Map $map)
     {
         return $map->load("locations")->locations;
