@@ -20,9 +20,10 @@ class LocationResource extends JsonResource
         return [
             "id" => $this->id,
             "points" => [
-                $this->x, $this->y, 
-                $this->x + $this->width, 
-                $this->y + $this->height
+                [$this->x, $this->y], 
+                [$this->x + $this->width, $this->y], 
+                [$this->x + $this-> width, $this->y + $this->height],
+                [$this->x, $this->y + $this->height]
             ],
             "status" => $status,
             "winner_text" => $this->when(!$this->available, $this->whenNotNull($this->winner_text)),
