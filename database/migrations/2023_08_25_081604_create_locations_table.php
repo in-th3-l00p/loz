@@ -23,6 +23,7 @@ return new class extends Migration
             $table->boolean("available")->default(true);
             $table->boolean("winner")->default(false);
             $table->string("winner_text")->nullable();
+            $table->string("image_url")->nullable()->default("/storage/location/image.png");
             $table->dateTime("claimed_at")->nullable();
             $table->dateTime("action_end")->nullable();
             $table->double("min_price")->nullable();

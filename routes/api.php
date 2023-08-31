@@ -29,6 +29,7 @@ Route::apiResource("maps", MapController::class)->only(["index", "show"]);
 Route::apiResource("users", UserController::class)->only("show");
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get("user", fn () => Auth::user() )->name("current_user");
+    Route::put("users", [UserController::class, "update"])->name("users.update");
     Route::apiResource("maps", MapController::class)->only(["store", "update", "destroy"]);
 
     Route::apiResource("maps.locations", LocationController::class)

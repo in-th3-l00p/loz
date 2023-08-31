@@ -26,7 +26,7 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'phone' => ["required", "size:10"],
-            "pfp" => ["image", "mimetypes:image/png"]
+            "pfp" => ["required", "image", "mimetypes:image/png"]
         ]);
 
         $user = User::create([
@@ -38,8 +38,8 @@ class RegisteredUserController extends Controller
 
         if (isset($request->pfp)) {
             $path = "pfp/" . $user->id . ".png";
-            Storage::disk("public")->put($path, $request->pfp);
-            $user->update(["pfp_path", $path]);
+            Storage::disk("public")->put($path, $request->pfp->get());
+            $user->update(["pfp_path" => "/storage/" . $path]);
         }
 
         event(new Registered($user));
