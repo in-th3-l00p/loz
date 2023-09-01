@@ -22,7 +22,7 @@ class LocationResource extends JsonResource
                 else
                     $status = "claimed";
             } else
-                $status = "not available";
+                $status = "unavailable";
         }
 
         return [
