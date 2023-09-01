@@ -20,6 +20,7 @@ return new class extends Migration
             $table->double("y");
             $table->double("width");
             $table->double("height");
+            $table->double("price")->default(100);
             $table->boolean("available")->default(true);
             $table->boolean("scratched")->default(false);
             $table->boolean("winner")->default(false);
