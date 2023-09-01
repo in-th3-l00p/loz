@@ -17,7 +17,7 @@ class LocationPolicy
     }
 
     public function set_location_image(User $user, Location $location) {
-        return !$location->available && ($location->user_id === $user->id || $user->admin);
+        return !$location->available && $location->user_id === $user->id && $location->scratched;
     }
 
     public function scratch_location(User $user, Location $location) {
