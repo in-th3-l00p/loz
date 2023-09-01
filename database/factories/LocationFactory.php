@@ -32,13 +32,19 @@ class LocationFactory extends Factory
 
     public function claimed(): LocationFactory
     {
-        return fake()->boolean() ? $this->winner() : $this->loser();
+        return $this->state(fn (array $attributes) => [
+            "available" => false,
+            "user_id" => User::all(["*"])->random()->id,
+            "claimed_at" => now()
+        ]);
     }
 
     public function winner(): LocationFactory 
     {
         return $this->state(fn (array $attributes) => [
             "available" => false,
+            "scratched" => true,
+            "scratched_at" => now(),
             "winner" => true,
             "winner_text" => fake()->sentence(3),
             "user_id" => User::all(["*"])->random()->id,
@@ -51,6 +57,8 @@ class LocationFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             "available" => false,
+            "scratched" => true,
+            "scratched_at" => now(),
             "winner" => false,
             "user_id" => User::all(["*"])->random()->id,
             "claimed_at" => now(),

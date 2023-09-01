@@ -26,10 +26,14 @@ class DatabaseSeeder extends Seeder
 
         \App\Models\Location::factory(100)->create();
         \App\Models\Location::factory(100)->claimed()->create();
+        \App\Models\Location::factory(100)->winner()->create();
+        \App\Models\Location::factory(100)->loser()->create();
         \App\Models\Location::factory(50)->notAvailable()->create();
 
         \App\Models\Location::factory(40)->firstMap()->create();
-        \App\Models\Location::factory(40)->firstMap()->claimed()->create();
+        \App\Models\Location::factory(10)->firstMap()->claimed()->create();
+        \App\Models\Location::factory(20)->firstMap()->winner()->create();
+        \App\Models\Location::factory(20)->firstMap()->loser()->create();
         \App\Models\Location::factory(20)->firstMap()->notAvailable()->create();
     }
 }
