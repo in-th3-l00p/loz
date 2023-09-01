@@ -21,9 +21,10 @@ return new class extends Migration
             $table->double("width");
             $table->double("height");
             $table->boolean("available")->default(true);
+            $table->boolean("scratched")->default(false);
             $table->boolean("winner")->default(false);
             $table->string("winner_text")->nullable();
-            $table->string("image_url")->nullable()->default("/storage/locations/image.png");
+            $table->string("image_path")->nullable();
             $table->dateTime("claimed_at")->nullable();
             $table->dateTime("action_end")->nullable();
             $table->double("min_price")->nullable();

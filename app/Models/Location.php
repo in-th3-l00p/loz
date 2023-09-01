@@ -12,7 +12,8 @@ class Location extends Model
     protected $fillable = [
         "available",
         "user_id",
-        "claimed_at"
+        "claimed_at",
+        "image_path"
     ];
 
     protected function map() {

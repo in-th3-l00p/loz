@@ -25,18 +25,22 @@ Route::post("/login", function (Request $request) {
     ]);
 });
 
+Route::get("/users/{user}", [UserController::class, "show"]);
 Route::apiResource("maps", MapController::class)->only(["index", "show"]);
-Route::apiResource("users", UserController::class)->only("show");
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get("user", fn () => Auth::user() )->name("current_user");
-    Route::put("users", [UserController::class, "update"])->name("users.update");
-    Route::apiResource("maps", MapController::class)->only(["store", "update", "destroy"]);
+Route::apiResource("maps.locations", LocationController::class)->only(["show"])->scoped();
 
-    Route::apiResource("maps.locations", LocationController::class)
-        ->scoped()
-        ->only(["show", "update"]);
+Route::middleware("auth:sanctum")->group(function () {
+    Route::get("/user", [UserController::class, "showAuthenticated"]);
+    Route::post("/users/setProfilePicture", [UserController::class, "setProfilePicture"]);
+
+    Route::apiResource("maps", MapController::class)->except(["index", "show"]);
+
     Route::put(
-        "maps/{map}/locations/{location}/claim", 
+        "/maps/{map}/locations/{location}/claim", 
         [LocationController::class, "claim"]
     )->name("maps.locations.claim");
+    Route::post(
+        "/maps/{map}/locations/{location}/image", 
+        [LocationController::class, "setImage"]
+    )->name("maps.locations.image");
 });

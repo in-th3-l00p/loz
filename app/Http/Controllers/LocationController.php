@@ -6,50 +6,38 @@ use App\Http\Resources\LocationResource;
 use App\Models\Location;
 use App\Models\Map;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class LocationController extends Controller
 {
     public function __construct() {
     }
 
-    public function index() { }
-
-    public function store(Request $request) { }
-
-    public function show($map, $location)
-    {
-        $map = Map::findOrFail($map);
-        $location = Location::findOrFail($location);
+    public function show(Map $map, Location $location) {
         return new LocationResource($location);
     }
 
-    public function update(Request $request, Location $location)
-    {
-        $request->validate(["winner" => "required|boolean"]);
-        if ($request->winner) {
-            $request->validate(["winner_text" => "required"]);
-            $location->update([
-                "winner" => $request->winner,
-                "winner_text" => $request->winner_text
-            ]);
-        } else {
-            $location->update([ "winner" => $request->winner ]);
-        }
-    }
-
-    public function claim(string $map, string $location, Request $request) {
-        $map = Map::findOrFail($map);
-        $location = Location::findOrFail($location);
-        if (!$location->available) {
-            abort(403);
-        }
-
+    public function claim(Map $map, Location $location, Request $request) {
+        $this->authorize("claim_location", $location);
         $location->update([
             "available" => false,
             "claimed_at" => now(),
-            "user_id" => auth()->user()->id
+            "user_id" => auth()->user()->getAuthIdentifier()
         ]);
     }
 
-    public function destroy(Location $location) { }
+    public function setImage(Map $map, Location $location, Request $request) {
+        $this->authorize("set_location_image", $location);
+
+        $request->validate([
+            "image" => "required|image|mimetypes:image/png"
+        ]);
+        Storage::disk("public")->put(
+            "locations/" . $location->id . ".png", 
+            $request->image->get()
+        );
+        $location->update([
+            "image_path" => "/storage/locations/" . $location->id . ".png"
+        ]);
+    }
 }

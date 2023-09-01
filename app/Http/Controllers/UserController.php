@@ -13,28 +13,19 @@ class UserController extends Controller
         return $user;
     }
 
-    public function update(Request $request) 
+    public function showAuthenticated() {
+        return User::find(auth()->user()->getAuthIdentifier());
+    }
+
+    public function setProfilePicture(Request $request, User $user)
     {
         $data = $request->validate([
-            // 'name' => ['bail', 'string', 'max:255'],
-            // 'email' => ['bail', 'string', 'email', 'max:255', 'unique:'.User::class],
-            // 'phone' => ["bail", "size:10"],
-            "pfp" => "required"
+            "image" => "required|image|mimetypes:image/png"
         ]);
 
-        $user = User::findOrFail(auth()->user()->id);
-        $user->update($data);
-
-        if (isset($data["pfp"])) {
-            error_log("yeesss");
-            $request->validate(["pfp" => "image|mimetypes:image/png"]);
-            $path = "pfp/" . $user->id . ".png";
-            if ($user->pfp_path !== null) {
-                Storage::disk("public")->delete($path);
-            } else {
-                $user->update(["pfp_path" => "/storage/" . $path]);
-            }
-            Storage::disk("public")->put($path, $request->pfp->get());
-        }
+        $path = "pfp/" . $user->id . ".png";
+        if ($user->pfp_path === null)
+            $user->update(["pfp_path" => "/storage/" . $path]);
+        Storage::disk("public")->put($path, $request->image->get());
     }
 }
