@@ -39,6 +39,10 @@ Route::middleware("auth:sanctum")->group(function () {
         "/maps/{map}/locations/{location}/claim", 
         [LocationController::class, "claim"]
     )->name("maps.locations.claim");
+    Route::put(
+        "/maps/{map}/locations/{location}/scratch", 
+        [LocationController::class, "scratch"]
+    )->name("maps.locations.scratch");
     Route::post(
         "/maps/{map}/locations/{location}/image", 
         [LocationController::class, "setImage"]

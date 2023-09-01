@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Location;
 use App\Models\Map;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,7 +24,7 @@ class LocationFactory extends Factory
             "y" => fake()->numberBetween(0, 1000),
             "width" => fake()->numberBetween(0, 100),
             "height" => fake()->numberBetween(0, 100),
-            "map_id" => Map::all()->random()->id,
+            "map_id" => Map::all(["*"])->random()->id,
             "created_at" => now(),
             "updated_at" => now()
         ];
@@ -31,16 +32,43 @@ class LocationFactory extends Factory
 
     public function claimed(): LocationFactory
     {
-        return $this->state(function (array $attributes) {
-            $winner = fake()->boolean();
+        return fake()->boolean() ? $this->winner() : $this->loser();
+    }
 
-            return [
-                "available" => false,
-                "winner" => $winner,
-                "winner_text" => $winner ? fake()->sentence(3) : null,
-                "user_id" => User::all()->random()->id,
-                "claimed_at" => now(),
-            ];
-        });
+    public function winner(): LocationFactory 
+    {
+        return $this->state(fn (array $attributes) => [
+            "available" => false,
+            "winner" => true,
+            "winner_text" => fake()->sentence(3),
+            "user_id" => User::all(["*"])->random()->id,
+            "claimed_at" => now(),
+            "image_path" => "/storage/locations/default.png"
+        ]);
+    }
+
+    public function loser(): LocationFactory 
+    {
+        return $this->state(fn (array $attributes) => [
+            "available" => false,
+            "winner" => false,
+            "user_id" => User::all(["*"])->random()->id,
+            "claimed_at" => now(),
+            "image_path" => "/storage/locations/default.png"
+        ]);
+    }
+
+    public function notAvailable(): LocationFactory 
+    {
+        return $this->state(fn (array $attributes) => [
+            "available" => false
+        ]);
+    }
+
+    public function firstMap(): LocationFactory
+    {
+        return $this->state(fn (array $attributes) => [
+            "map_id" => 1
+        ]);
     }
 }

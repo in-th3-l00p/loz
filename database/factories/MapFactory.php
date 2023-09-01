@@ -18,7 +18,7 @@ class MapFactory extends Factory
     {
         return [
             "name" => fake()->sentence(3),
-            "img_path" => "maps/1.png",
+            "img_path" => "/storage/maps/default.png",
             "width" => 1000,
             "height" => 1000,
             "created_at" => now(),

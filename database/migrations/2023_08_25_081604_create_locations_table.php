@@ -20,19 +20,25 @@ return new class extends Migration
             $table->double("y");
             $table->double("width");
             $table->double("height");
+            $table->foreignIdFor(Map::class);
+
             $table->double("price")->default(100);
             $table->boolean("available")->default(true);
+            $table->string("image_path")->nullable();
             $table->boolean("scratched")->default(false);
+            $table->dateTime("scratched_at")->nullable();
+
             $table->boolean("winner")->default(false);
             $table->string("winner_text")->nullable();
-            $table->string("image_path")->nullable();
+
+            $table->foreignIdFor(User::class)->nullable();
             $table->dateTime("claimed_at")->nullable();
+
+            $table->foreignIdFor(Bid::class, "winning_bid")->nullable();
             $table->dateTime("action_end")->nullable();
             $table->double("min_price")->nullable();
             $table->double("max_price")->nullable();
-            $table->foreignIdFor(Map::class);
-            $table->foreignIdFor(User::class)->nullable();
-            $table->foreignIdFor(Bid::class, "winning_bid")->nullable();
+
             $table->timestamps();
         });
     }

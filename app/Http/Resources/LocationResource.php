@@ -16,10 +16,13 @@ class LocationResource extends JsonResource
     {
         $status = "available";
         if (!$this->available) {
-            if ($this->scratched)
-                $status = $this->winner ? "winner" : "not winner";
-            else
-                $status = "claimed";
+            if ($this->user_id !== null) {
+                if ($this->scratched)
+                    $status = $this->winner ? "winner" : "not winner";
+                else
+                    $status = "claimed";
+            } else
+                $status = "not available";
         }
 
         return [

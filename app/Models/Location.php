@@ -13,7 +13,9 @@ class Location extends Model
         "available",
         "user_id",
         "claimed_at",
-        "image_path"
+        "image_path",
+        "scratched",
+        "scratched_at"
     ];
 
     protected function map() {

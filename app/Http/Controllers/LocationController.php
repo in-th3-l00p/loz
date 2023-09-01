@@ -26,6 +26,14 @@ class LocationController extends Controller
         ]);
     }
 
+    public function scratch(Map $map, Location $location) {
+        $this->authorize("scratch_location", $location);
+        $location->update([
+            "scratched" => true,
+            "scratched_at" => now()
+        ]);
+    }
+
     public function setImage(Map $map, Location $location, Request $request) {
         $this->authorize("set_location_image", $location);
 
