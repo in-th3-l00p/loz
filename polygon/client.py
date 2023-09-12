@@ -12,10 +12,10 @@ def main():
     with open("shape.json", "r") as file:
         data = json.loads(file.read())
         points = [
-            [point[0] * 0.2 + 200, point[1] * 0.2 + 200] 
-            for point in data["points"]
+            point
+            for point in data
         ]
-        edges = data["edges"]
+        file.close()
 
     while running:
         for event in pygame.event.get():
@@ -27,9 +27,7 @@ def main():
             elif event.type == pygame.KEYUP and event.key == pygame.K_s:
                 if len(points) >= 3:
                     response = requests.post("http://localhost:5000", json = {
-                        "rectangles": 2000,
-                        "points": points,
-                        "edges": edges
+                        "rectangles": 100,
                     }) 
                     rectangles = response.json()
 
