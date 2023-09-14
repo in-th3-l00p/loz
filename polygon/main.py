@@ -11,7 +11,7 @@ def run():
     with open("shape.json", "r") as file:
         points = [np.array(v, 'float64') for v in json.loads(file.read())]
         file.close()
-    count = request.json["rectangles"]
+    count = float(request.json["rectangles"])
 
     startX, startY = points[0]
     width, height = (0, 0)
