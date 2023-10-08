@@ -4,11 +4,12 @@ import api, { BACKEND } from "../../utils/api";
 import { useParams } from "react-router-dom";
 import { getTopLeft, getTopRight, pointInsidePolygon } from "../../utils/geometry";
 import AuthContext from "../../hooks/Auth";
+import LocationPopup from "../../components/LocationPopup";
 
 const MAP_SRC = "/tshirt.jpeg";
 const MAP_WIDTH = 728;
 const MAP_HEIGHT = 721;
-const COLORS = {
+export const COLORS = {
   unavailable: { primary: "#b3b3b3", secondary: "#d9d9d9", text: "black" },
   available: { primary: "#02bf63", secondary: "#7eda57", text: "white" },
   winner: { primary: "#ff914d", secondary: "#ffbd59", text: "white" },
@@ -96,8 +97,11 @@ const MapDisplay = () => {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        map?.locations!.forEach((area: any) => {
+        console.log(map?.locations);
+        map?.locations!.forEach((area: Location) => {
             if (pointInsidePolygon(area.points, [x / multiplierX, y / multiplierY,])) {
+                console.log(area.points);
+                console.log(x / multiplierX, y / multiplierY);
                 if (x > rect.width / 2) {
                     setPopupDirection("left");
                     const [maxX, maxY] = getTopLeft(area.points);
@@ -130,15 +134,25 @@ const MapDisplay = () => {
     if (loading)
         return <p>loading...</p>
     return (
-        <section className="px-4 md:px-10 lg:px-32 pt-10">
+        <section className="px-4 md:px-10 lg:px-32">
             {/* display data */}
-            <h2 className={"text-3xl font-bold"}>Harta: {map?.name}</h2>
+            <h2 className={"text-3xl font-bold py-10"}>Harta: {map?.name}</h2>
             <canvas
                 className="w-[75vw] mx-auto h-[75vw] landscape:w-[75vh] landscape:h-[75vh] border"
                 ref={canvasRef}
                 onClick={handleCanvasClick}
             ></canvas>
-
+            {selectedLocation ? (
+                <LocationPopup
+                    x={popupX}
+                    y={popupY}
+                    direction={popupDirection}
+                    location={selectedLocation}
+                    setLocation={setSelectedLocation}
+                />
+            ) : (
+                <></>
+            )}
         </section>
     );
 }
