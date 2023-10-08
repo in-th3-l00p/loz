@@ -48,8 +48,8 @@ class MapController extends Controller
             $location = new Location;
             $location->x = $coords[0];
             $location->y = $coords[1];
-            $location->width = $coords[2] - $coords[0];
-            $location->height = $coords[3] - $coords[1];
+            $location->width = $coords[2];
+            $location->height = $coords[3];
             $location->map_id = $map->id;
             $location->save();
         }
