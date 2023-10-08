@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+// postman login
 Route::post("/login", function (Request $request) {
     $credentials = $request->validate([
         "email" => "required|email",
@@ -33,18 +34,26 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/user", [UserController::class, "showAuthenticated"]);
     Route::post("/users/setProfilePicture", [UserController::class, "setProfilePicture"]);
 
-    Route::apiResource("maps", MapController::class)->except(["index", "show"]);
+    Route::apiResource("maps", MapController::class)
+        ->except(["index", "show", "update"]);
 
     Route::put(
-        "/maps/{map}/locations/{location}/claim", 
+        "/maps/{map}/locations/{location}/claim",
         [LocationController::class, "claim"]
     )->name("maps.locations.claim");
     Route::put(
-        "/maps/{map}/locations/{location}/scratch", 
+        "/maps/{map}/locations/{location}/scratch",
         [LocationController::class, "scratch"]
     )->name("maps.locations.scratch");
     Route::post(
-        "/maps/{map}/locations/{location}/image", 
+        "/maps/{map}/locations/{location}/image",
         [LocationController::class, "setImage"]
     )->name("maps.locations.image");
+
+    Route::prefix("/admin")->group(function() {
+        Route::put(
+            "/maps/{map}/locations/{location}/status",
+            [LocationController::class, "updateStatus"]
+        )->name("admin.maps.locations.updateStatus");
+    });
 });

@@ -35,7 +35,7 @@ class LocationResource extends JsonResource
             ],
             "status" => $status,
             "price" => $this->when($this->available, $this->price),
-            "image_path" => $this->when(!$this->available, $this->image_path),
+            "image_path" => $this->when(!$this->available, $this->whenNotNull($this->image_path)),
             "winner_text" => $this->when(!$this->available, $this->whenNotNull($this->winner_text)),
             "claimed_by" => $this->whenNotNull($this->user_id),
             "claimed_at" => $this->whenNotNull($this->claimed_at)

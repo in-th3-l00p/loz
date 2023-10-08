@@ -23,4 +23,8 @@ class LocationPolicy
     public function scratch_location(User $user, Location $location) {
         return !$location->available && $location->user_id === $user->id && !$location->scratched;
     }
+
+    public function update_status(User $user, Location $location) {
+        return $location->user_id === null;
+    }
 }

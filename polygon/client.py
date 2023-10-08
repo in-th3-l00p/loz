@@ -26,9 +26,9 @@ def main():
                 points.append(pygame.mouse.get_pos())
             elif event.type == pygame.KEYUP and event.key == pygame.K_s:
                 if len(points) >= 3:
-                    response = requests.post("http://localhost:5000", json = {
+                    response = requests.post("http://0.0.0.0:5000", json = {
                         "rectangles": 100,
-                    }) 
+                    })
                     rectangles = response.json()
 
         screen.fill((0, 0, 0))

@@ -14,7 +14,7 @@ class UserController extends Controller
     }
 
     public function showAuthenticated() {
-        return User::find(auth()->user()->getAuthIdentifier());
+        return auth()->user();
     }
 
     public function setProfilePicture(Request $request, User $user)

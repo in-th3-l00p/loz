@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind utilities;
+@tailwind components;
+
+* {
+    @apply text-light;
+}
+
+body {
+    @apply bg-space;
+}
+
+.form-group {
+    @apply flex w-full mb-5 justify-center items-center;
+}
+
+.form-label {
+    @apply text-2xl w-36;
+}
+
+.form-input {
+    @apply
+        text-light bg-federal text-2xl p-3 rounded-lg border-4 border-zaffre shadow-2xl
+        focus:border-4 focus:border-glaucous focus:bg-zaffre focus:outline-none
+        hover:brightness-75;
+}
+
+.button {
+    @apply
+        p-5 bg-federal rounded-lg text-xl shadow-2xl
+        hover:bg-zaffre;
+}

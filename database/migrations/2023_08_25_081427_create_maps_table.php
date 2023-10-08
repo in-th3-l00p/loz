@@ -14,9 +14,6 @@ return new class extends Migration
         Schema::create('maps', function (Blueprint $table) {
             $table->id();
             $table->string("name")->unique();
-            $table->string("img_path");
-            $table->unsignedInteger("width");
-            $table->unsignedInteger("height");
             $table->timestamps();
         });
     }

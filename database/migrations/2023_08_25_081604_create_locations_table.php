@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignIdFor(Map::class);
 
             $table->double("price")->default(100);
-            $table->boolean("available")->default(true);
+            $table->boolean("available")->default(false);
             $table->string("image_path")->nullable();
             $table->boolean("scratched")->default(false);
             $table->dateTime("scratched_at")->nullable();
@@ -34,10 +34,10 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->nullable();
             $table->dateTime("claimed_at")->nullable();
 
-            $table->foreignIdFor(Bid::class, "winning_bid")->nullable();
-            $table->dateTime("action_end")->nullable();
-            $table->double("min_price")->nullable();
-            $table->double("max_price")->nullable();
+            // $table->foreignIdFor(Bid::class, "winning_bid")->nullable();
+            // $table->dateTime("action_end")->nullable();
+            // $table->double("min_price")->nullable();
+            // $table->double("max_price")->nullable();
 
             $table->timestamps();
         });

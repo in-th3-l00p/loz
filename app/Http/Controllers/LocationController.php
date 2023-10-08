@@ -41,11 +41,22 @@ class LocationController extends Controller
             "image" => "required|image|mimetypes:image/png"
         ]);
         Storage::disk("public")->put(
-            "locations/" . $location->id . ".png", 
+            "locations/" . $location->id . ".png",
             $request->image->get()
         );
         $location->update([
             "image_path" => "/storage/locations/" . $location->id . ".png"
+        ]);
+    }
+
+    public function updateStatus(Map $map, Location $location, Request $request) {
+        $this->authorize("update_status", $location);
+        $request->validate([
+            "available" => "required|boolean"
+        ]);
+
+        $location->update([
+            "available" => $request->available
         ]);
     }
 }

@@ -12,10 +12,7 @@ class MapResource extends JsonResource
         return [
             "id" => $this->id,
             "name" => $this->name,
-            "width" => $this->width,
-            "height" => $this->height,
             "locations" => LocationResource::collection($this->whenLoaded("locations")),
-            "img_path" => $this->img_path
         ];
     }
 }
