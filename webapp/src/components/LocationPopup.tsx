@@ -3,8 +3,9 @@ import { useParams } from "react-router-dom";
 import AuthContext from "../hooks/Auth";
 import Popup, { PopupButton } from "./Popup";
 import { Location, User } from "../utils/types";
-import { COLORS } from "../routes/maps/Map";
-import api from "../utils/api";
+import { COLORS, getColor } from "../routes/maps/Map";
+import api, { BACKEND } from "../utils/api";
+import { addToCart } from "../utils/cart";
 
 interface UserCardProps {
     id: number;
@@ -81,6 +82,64 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
     const { id } = useParams();
     const auth = useContext(AuthContext);
 
+    if (auth.user?.admin)
+        return (
+            <>
+                <Popup
+                    x={x}
+                    y={y}
+                    direction={direction}
+                    className="bg-white z-[10]"
+                >
+                    <LocationPopupTitle
+                        backgroundColor={getColor(location.status).primary}
+                        color={getColor(location.status).text}
+                    >
+                        Lozul: {location.id}
+                    </LocationPopupTitle>
+                    <div className="p-4 text-lg text-semibold">
+                        <p className="text-black">Status: {location.status}</p>
+                        {location.price && <p className="text-black">Pret: {location.price} ron</p>}
+                        {location.image_path && (
+                            <div>
+                                <label className="text-black me-3">Imagine</label>
+                                <img src={BACKEND + location.image_path} alt="location" />
+                            </div>
+                        )}
+                        {location.winner_text && 
+                            <p className="text-black">
+                                Text castigator: {location.winner_text}
+                            </p>
+                        }
+                        {location.claimed_by &&
+                            <p className="text-black">
+                                Cumparata de: {location.claimed_by}
+                            </p> 
+                        }
+                        {location.claimed_by &&
+                            <p className="text-black">
+                                Cumparata pe data de: {location.claimed_at?.toISOString()}
+                            </p> 
+                        }
+                        <div className="flex gap-5 mt-5">
+                            <a 
+                                href={`/maps/${id}/locations/${location.id}`} 
+                                className="button"
+                                title="Setari"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </Popup>
+                <div
+                    className="bg-black/20 z-[5] absolute left-0 top-0 right-0 bottom-0"
+                    onClick={() => setLocation(null)}
+                />
+            </>
+        );
     return (
         <>
             <Popup
@@ -89,7 +148,7 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                 direction={direction}
                 className="bg-white z-[10]"
             >
-                {/* Uncalimed locations */}
+                {/* Unclaimed locations */}
                 {location.claimed_by == null && (
                     <div className="flex flex-col">
                         {location.status == LOCATION_STATUS.available && (
@@ -112,9 +171,7 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                                     <label className="text-black">Pret: {location.price}</label>
                                     <PopupButton
                                         className="mt-6"
-                                        onClick={() => {}
-                                            // addToCart(location.id, id)
-                                        }
+                                        onClick={() => addToCart(parseInt(id!), location.id)}
                                         color={COLORS.available.text}
                                         backgroundColor={
                                             COLORS.available.primary

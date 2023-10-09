@@ -15,7 +15,8 @@ class Location extends Model
         "claimed_at",
         "image_path",
         "scratched",
-        "scratched_at"
+        "scratched_at",
+        "processed"
     ];
 
     protected function map() {

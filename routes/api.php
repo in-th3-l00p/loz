@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\UserController;
 use App\Models\Location;
 use App\Models\User;
@@ -49,6 +50,11 @@ Route::middleware("auth:sanctum")->group(function () {
         "/maps/{map}/locations/{location}/image",
         [LocationController::class, "setImage"]
     )->name("maps.locations.image");
+
+    Route::post(
+        "/payment/submit",
+        [PaymentController::class, "submit"]
+    )->name("payment.submit");
 
     Route::prefix("/admin")->group(function() {
         Route::put(

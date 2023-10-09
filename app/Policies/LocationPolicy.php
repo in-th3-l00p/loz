@@ -25,6 +25,6 @@ class LocationPolicy
     }
 
     public function update_status(User $user, Location $location) {
-        return $location->user_id === null;
+        return $location->user_id === null && $user->admin;
     }
 }

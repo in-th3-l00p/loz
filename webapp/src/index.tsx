@@ -12,6 +12,8 @@ import api from "./utils/api";
 import Home from "./routes/Home";
 import MapCreate from "./routes/maps/MapCreate";
 import MapDisplay from './routes/maps/Map';
+import LocationSettings from './routes/maps/LocationSettings';
+import Cart from './routes/Cart';
 
 const router = createBrowserRouter([
     {
@@ -29,6 +31,14 @@ const router = createBrowserRouter([
     {
         path: "/maps/:id",
         element: <MapDisplay />
+    },
+    {
+        path: "/maps/:mapId/locations/:locationId",
+        element: <LocationSettings />
+    },
+    {
+        path: "/cart",
+        element: <Cart />
     }
 ]);
 

@@ -17,6 +17,21 @@ export const COLORS = {
   claimed: { primary: "#0dc0e0", secondary: "#5de1e6", text: "white" },
 };
 
+export function getColor(status: string) {
+    switch (status) {
+        case "unavailable":
+            return COLORS.unavailable;
+        case "available":
+            return COLORS.available;
+        case "winner":
+            return COLORS.winner;
+        case "loser":
+            return COLORS.loser;
+        default:
+            return COLORS.claimed;
+    }
+}
+
 
 const MapDisplay = () => {
     const params = useParams();

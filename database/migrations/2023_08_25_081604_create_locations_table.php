@@ -34,6 +34,8 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->nullable();
             $table->dateTime("claimed_at")->nullable();
 
+            $table->boolean("processed")->default(false);
+
             // $table->foreignIdFor(Bid::class, "winning_bid")->nullable();
             // $table->dateTime("action_end")->nullable();
             // $table->double("min_price")->nullable();

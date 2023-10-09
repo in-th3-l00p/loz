@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "56d84b0c0e7df36a6b98390f3e9be84f",
+    "content-hash": "4e2395188b296a7ad04e52221865288f",
     "packages": [
         {
             "name": "brick/math",
@@ -2480,6 +2480,48 @@
                 }
             ],
             "time": "2023-08-03T09:00:52+00:00"
+        },
+        {
+            "name": "netopia/payment",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mobilpay/composer.git",
+                "reference": "b9f8b17b20d18ad6ec6275dc0b1f1c1218860de7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mobilpay/composer/zipball/b9f8b17b20d18ad6ec6275dc0b1f1c1218860de7",
+                "reference": "b9f8b17b20d18ad6ec6275dc0b1f1c1218860de7",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-simplexml": "*",
+                "php": ">=5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Netopia\\Payment\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "NETOPIA Payments",
+                    "email": "implementare@netopia-system.com"
+                }
+            ],
+            "description": "Set of library that give you the means to incorporate NETOPIA Payments functionality into your website applications and mobile apps.",
+            "support": {
+                "issues": "https://github.com/mobilpay/composer/issues",
+                "source": "https://github.com/mobilpay/composer/tree/v1.1.0"
+            },
+            "time": "2023-09-28T07:00:51+00:00"
         },
         {
             "name": "nette/schema",
@@ -8849,5 +8891,5 @@
         "php": "^8.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }
