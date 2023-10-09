@@ -12,6 +12,10 @@ class LocationPolicy
     {
     }
 
+    public function admin_show(User $user, Location $location) {
+        return $user->admin;
+    }
+
     public function claim_location(User $user, Location $location) {
         return $location->available;
     }
@@ -24,7 +28,7 @@ class LocationPolicy
         return !$location->available && $location->user_id === $user->id && !$location->scratched;
     }
 
-    public function update_status(User $user, Location $location) {
+    public function admin_update(User $user, Location $location) {
         return $location->user_id === null && $user->admin;
     }
 }

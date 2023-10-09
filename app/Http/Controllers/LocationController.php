@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AdminLocationResource;
 use App\Http\Resources\LocationResource;
 use App\Models\Location;
 use App\Models\Map;
@@ -15,6 +16,11 @@ class LocationController extends Controller
 
     public function show(Map $map, Location $location) {
         return new LocationResource($location);
+    }
+
+    public function adminShow(Map $map, Location $location) {
+        $this->authorize("admin_show", $location);
+        return new AdminLocationResource($location);
     }
 
     public function claim(Map $map, Location $location, Request $request) {
@@ -49,14 +55,20 @@ class LocationController extends Controller
         ]);
     }
 
-    public function updateStatus(Map $map, Location $location, Request $request) {
-        $this->authorize("update_status", $location);
-        $request->validate([
-            "available" => "required|boolean"
-        ]);
+    public function adminUpdate(Map $map, Location $location, Request $request) {
+        $this->authorize("admin_update", $location);
 
-        $location->update([
-            "available" => $request->available
-        ]);
+        if ($request->available === true) {
+            $location->update($request->validate([
+                "available" => "required|boolean",
+                "winner" => "bail|boolean",
+                "winner_text" => "bail|nullable"
+            ]));
+            return;
+        }
+
+        $location->update($request->validate([
+            "available" => "required|boolean"
+        ]));
     }
 }

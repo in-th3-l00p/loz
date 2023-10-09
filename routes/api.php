@@ -51,15 +51,15 @@ Route::middleware("auth:sanctum")->group(function () {
         [LocationController::class, "setImage"]
     )->name("maps.locations.image");
 
-    Route::post(
-        "/payment/submit",
-        [PaymentController::class, "submit"]
-    )->name("payment.submit");
-
     Route::prefix("/admin")->group(function() {
+        Route::get(
+            "/maps/{map}/locations/{location}",
+            [LocationController::class, "adminShow"]
+        )->name("admin.maps.locations.adminShow");
+
         Route::put(
-            "/maps/{map}/locations/{location}/status",
-            [LocationController::class, "updateStatus"]
-        )->name("admin.maps.locations.updateStatus");
+            "/maps/{map}/locations/{location}",
+            [LocationController::class, "adminUpdate"]
+        )->name("admin.maps.locations.adminUpdate");
     });
 });

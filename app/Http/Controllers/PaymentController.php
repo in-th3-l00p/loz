@@ -4,16 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Location;
 use App\Models\Map;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Netopia\Payment\Address;
 use Netopia\Payment\Invoice;
 use Netopia\Payment\Request\Card;
+use Netopia\Payment\Request\PaymentAbstract;
 
 class PaymentController extends Controller
 {
     public $paymentUrl = "http://sandboxsecure.mobilpay.ro";
-    public $x509FilePath = "/var/www/html/sandbox.2WTM-EA5C-J0BK-NE1X-C5V5.public.cer";
+    public $x509FilePath = "/home/intheloop/Desktop/loz/sandbox.2WTM-EA5C-J0BK-NE1X-C5V5.public.cer";
 
     public function submit(Request $request) {
         $request->validate([
@@ -32,7 +34,7 @@ class PaymentController extends Controller
         foreach ($initial_items as $item) {
             $map = Map::findOrFail($item["mapId"]);
             $location = Location::findOrFail($item["locationId"]);
-            if (!$location->available || $location->processed)
+            if (!$location->available || $location->order_id !== null)
                 array_push($unavailable, $location->id);
             array_push($items, [
                 "map" => $map,
@@ -44,22 +46,35 @@ class PaymentController extends Controller
             return response([ "unavailable" => $unavailable ], 400);
 
         $cost = 0;
-        foreach ($items as $item) {
-            $item["location"]->update([ "processed" => true ]);
+        foreach ($items as $item)
             $cost += $item["location"]->price;
-        }
+        $order = Order::create([
+            "status" => "not_started",
+            "amount" => $cost,
+            "currency" => "RON",
+            "description" => "Achizitionare lozuri",
+            "billing_address" => json_encode([
+                "firstName" => $request->firstName,
+                "lastName" => $request->lastName,
+                "address" => $request->address,
+                "email" => $request->email,
+                "mobilePhone" => $request->mobilePhone
+            ])
+        ]);
+        // foreach ($items as $item)
+        //     $item["location"]->update(["order_id" => $order->id]);
 
         $paymentRequest = new Card();
         $paymentRequest->signature = "2WTM-EA5C-J0BK-NE1X-C5V5";
         $paymentRequest->orderId = md5(uniqid(rand()));
         $paymentRequest->confirmUrl = "http://localhost:3000";
-        $paymentRequest->returnUrl = "http://localhost/ipn";
+        $paymentRequest->returnUrl = "http://localhost:8000/payment/ipn";
 
         $paymentRequest->invoice = new Invoice();
-        $paymentRequest->invoice->currency = "RON";
-        $paymentRequest->invoice->amount = $cost;
+        $paymentRequest->invoice->currency = $order->currency;
+        $paymentRequest->invoice->amount = $order->amount;
         $paymentRequest->invoice->tokenId = null;
-        $paymentRequest->invoice->details = "Cumpara lozuri";
+        $paymentRequest->invoice->details = $order->description;
 
         $billingAddress = new Address();
         $billingAddress->type = $request->type;
@@ -75,21 +90,107 @@ class PaymentController extends Controller
         $data = $paymentRequest->getEncData();
         $cipher = $paymentRequest->getCipher();
         $iv = $paymentRequest->getIv();
-        error_log($env_key);
-        error_log($data);
-        error_log($cipher);
-        error_log($iv);
-        $resp = Http::asForm()->post($this->paymentUrl, [
+        $order->update([ "status" => "pending" ]);
+        return [
             "env_key" => $env_key,
             "data" => $data,
             "cipher" => $cipher,
             "iv" => $iv
-        ]);
+        ];
+    }
 
-        foreach ($items as $item) {
-            $item["location"]->update([ "processed" => false ]);
+    public function ipn() {
+        $errorType = PaymentAbstract::CONFIRM_ERROR_TYPE_NONE;
+        $errorCode = 0;
+        $errorMessage = '';
+        $cipher     = 'rc4';
+        $iv         = null;
+        error_log("test");
+
+        if(array_key_exists('cipher', $_POST))
+        {
+            $cipher = $_POST['cipher'];
+            if(array_key_exists('iv', $_POST))
+            {
+                $iv = $_POST['iv'];
+            }
         }
 
-        return $resp;
+        if (strcasecmp($_SERVER['REQUEST_METHOD'], 'post') == 0){
+            if(isset($_POST['env_key']) && isset($_POST['data'])){
+                try {
+                    $paymentRequestIpn = PaymentAbstract::factoryFromEncrypted($_POST['env_key'], $_POST['data'], $this->x509FilePath, null, $cipher, $iv);
+                    $rrn = $paymentRequestIpn->objPmNotify->rrn;
+                    if ($paymentRequestIpn->objPmNotify->errorCode == 0) {
+                        switch($paymentRequestIpn->objPmNotify->action){
+                            case 'confirmed':
+                                //update DB, SET status = "confirmed/captured"
+                                $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
+                                break;
+                            case 'confirmed_pending':
+                                //update DB, SET status = "pending"
+                                $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
+                                break;
+                            case 'paid_pending':
+                                //update DB, SET status = "pending"
+                                $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
+                                break;
+                            case 'paid':
+                                //update DB, SET status = "open/preauthorized"
+                                $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
+                                break;
+                            case 'canceled':
+                                //update DB, SET status = "canceled"
+                                $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
+                                break;
+                            case 'credit':
+                                //update DB, SET status = "refunded"
+                                $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
+                                break;
+                            default:
+                                $errorType = PaymentAbstract::CONFIRM_ERROR_TYPE_PERMANENT;
+                                $errorCode = PaymentAbstract::ERROR_CONFIRM_INVALID_ACTION;
+                                $errorMessage = 'mobilpay_refference_action paramaters is invalid';
+                        }
+                    }else{
+                        //update DB, SET status = "rejected"
+                        $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
+                    }
+                }catch (\Exception $e) {
+                    $errorType = PaymentAbstract::CONFIRM_ERROR_TYPE_TEMPORARY;
+                    $errorCode = $e->getCode();
+                    $errorMessage = $e->getMessage();
+                }
+
+            }else{
+                $errorType = PaymentAbstract::CONFIRM_ERROR_TYPE_PERMANENT;
+                $errorCode = PaymentAbstract::ERROR_CONFIRM_INVALID_POST_PARAMETERS;
+                $errorMessag = 'mobilpay.ro posted invalid parameters';
+            }
+
+        } else {
+            $errorType = PaymentAbstract::CONFIRM_ERROR_TYPE_PERMANENT;
+            $errorCode = PaymentAbstract::ERROR_CONFIRM_INVALID_POST_METHOD;
+            $errorMessage = 'invalid request method for payment confirmation';
+        }
+
+        /**
+         * Communicate with NETOPIA Payments server
+         */
+
+        header('Content-type: application/xml');
+        echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+        if($errorCode == 0)
+        {
+            echo "<crc>{$errorMessage}</crc>";
+        }
+        else
+        {
+            echo "<crc error_type=\"{$errorType}\" error_code=\"{$errorCode}\">{$errorMessage}</crc>";
+        }
+    }
+
+    public function redirect(Request $request) {
+        return $request;
     }
 }

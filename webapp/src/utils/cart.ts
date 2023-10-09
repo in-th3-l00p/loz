@@ -28,6 +28,17 @@ export function removeFromCart(item: CartItem) {
     ));
 }
 
+export function removeFromCartById(id: number) {
+    let cart: CartItem[] = localStorage.getItem(CART_KEY) ? 
+        JSON.parse(localStorage.getItem(CART_KEY)!) :
+        [];
+    localStorage.setItem(CART_KEY, JSON.stringify(
+        cart.filter((currentItem: CartItem) => 
+            currentItem.locationId !== id
+        )
+    ));
+}
+
 export function getCart(): CartItem[] {
     return localStorage.getItem(CART_KEY) ?
         JSON.parse(localStorage.getItem("cart")!) :

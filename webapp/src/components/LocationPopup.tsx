@@ -2,7 +2,7 @@ import React, { CSSProperties, ReactNode, useContext, useEffect, useState } from
 import { useParams } from "react-router-dom";
 import AuthContext from "../hooks/Auth";
 import Popup, { PopupButton } from "./Popup";
-import { Location, User } from "../utils/types";
+import { AdminLocation, Location, User } from "../utils/types";
 import { COLORS, getColor } from "../routes/maps/Map";
 import api, { BACKEND } from "../utils/api";
 import { addToCart } from "../utils/cart";
@@ -27,6 +27,7 @@ const UserCard: React.FC<UserCardProps> = ({ id, className }) => {
             <img
                 className="h-14 w-14 rounded-full bg-neutral-200"
                 src={user?.pfp_path}
+                alt="profile"
             />
             <div className="flex flex-col justify-around">
                 <label className="font-semibold text-lg text-black">{user?.name}</label>
@@ -81,6 +82,12 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
 }) => {
     const { id } = useParams();
     const auth = useContext(AuthContext);
+    const [adminLocation, setAdminLocation] = useState<AdminLocation>();
+
+    useEffect(() => {
+        api.get(`/api/admin/maps/${id}/locations/${location.id}`)
+            .then(resp => setAdminLocation(resp.data["data"]));
+    }, []);
 
     if (auth.user?.admin)
         return (
@@ -99,7 +106,10 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                     </LocationPopupTitle>
                     <div className="p-4 text-lg text-semibold">
                         <p className="text-black">Status: {location.status}</p>
-                        {location.price && <p className="text-black">Pret: {location.price} ron</p>}
+                        {adminLocation && <p className="text-black">{adminLocation.winner ? "Castigator" : "Necastigator"}</p>}
+                        {!!(adminLocation && adminLocation.winner && adminLocation.winner_text) && 
+                            <p className="text-black">Text castigator: {adminLocation.winner_text}</p>
+                        }
                         {location.image_path && (
                             <div>
                                 <label className="text-black me-3">Imagine</label>
@@ -183,7 +193,7 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                             </>
                         )}
 
-                        {location.status == LOCATION_STATUS.unavailable && (
+                        {location.status === LOCATION_STATUS.unavailable && (
                             <>
                                 <LocationPopupTitle
                                     backgroundColor={COLORS.unavailable.primary}
@@ -210,7 +220,7 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                 {/* Claimed by another user */}
                 {location.claimed_by && location.claimed_by !== auth.user!.id && (
                     <div className="flex flex-col">
-                        {location.status == LOCATION_STATUS.claimed && (
+                        {location.status === LOCATION_STATUS.claimed && (
                             <>
                                 <LocationPopupTitle
                                     backgroundColor={COLORS.claimed.primary}
@@ -274,7 +284,7 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                             </>
                         )}
 
-                        {location.status == LOCATION_STATUS.loser && (
+                        {location.status === LOCATION_STATUS.loser && (
                             <>
                                 <LocationPopupTitle
                                     backgroundColor={COLORS.loser.primary}
@@ -317,7 +327,7 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                 {/* Current user location */}
                 {location.claimed_by === auth.user!.id && (
                     <div className="flex flex-col">
-                        {location.status == LOCATION_STATUS.claimed && (
+                        {location.status === LOCATION_STATUS.claimed && (
                             <>
                                 <LocationPopupTitle
                                     backgroundColor={COLORS.claimed.primary}

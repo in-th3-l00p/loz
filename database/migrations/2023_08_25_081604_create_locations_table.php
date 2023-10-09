@@ -2,6 +2,7 @@
 
 use App\Models\Bid;
 use App\Models\Map;
+use App\Models\Order;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -34,7 +35,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->nullable();
             $table->dateTime("claimed_at")->nullable();
 
-            $table->boolean("processed")->default(false);
+            $table->foreignIdFor(Order::class)->nullable();
 
             // $table->foreignIdFor(Bid::class, "winning_bid")->nullable();
             // $table->dateTime("action_end")->nullable();

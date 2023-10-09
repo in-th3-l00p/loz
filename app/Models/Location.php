@@ -16,18 +16,24 @@ class Location extends Model
         "image_path",
         "scratched",
         "scratched_at",
-        "processed"
+        "order_id",
+        "winner",
+        "winner_text"
     ];
 
-    protected function map() {
+    public function map() {
         return $this->belongsTo(Map::class);
     }
 
-    protected function user() {
+    public function user() {
         return $this->belongsTo(User::class);
     }
 
-    protected function bids() {
+    public function bids() {
         return $this->hasMany(Bid::class);
+    }
+
+    public function order() {
+        return $this->hasOne(Order::class);
     }
 }

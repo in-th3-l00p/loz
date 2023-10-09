@@ -18,6 +18,18 @@ export interface Location {
     claimed_at?: Date;
 }
 
+export interface AdminLocation {
+    id: number;
+    points: [number, number][];
+    available: boolean;
+    winner: boolean;
+    price: number;
+    image_path: string;
+    winner_text: string;
+    claimed_by: number;
+    claimed_at: Date;
+}
+
 export interface Map {
     id: number;
     name: string;

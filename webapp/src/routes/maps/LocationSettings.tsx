@@ -9,6 +9,7 @@ const LocationSettings = () => {
     const [loading, setLoading] = useState(true);
 
     const [available, setAvailable] = useState(false);
+    const [winner, setWinner] = useState(false);
 
     useEffect(() => {
         api.get(`/api/maps/${mapId}/locations/${locationId}`)
@@ -19,15 +20,6 @@ const LocationSettings = () => {
             .finally(() => setLoading(false))
     }, []);
 
-    useEffect(() => {
-        if (
-            location && 
-            location.status !== "unavailable" && 
-            location.status === "available"
-        )
-            window.location.href = "/maps/" + mapId;
-    }, [location])
-
     if (loading)
         return <p>loading...</p>
     return (
@@ -35,8 +27,22 @@ const LocationSettings = () => {
             <h2 className={"text-3xl font-bold py-10"}>Loz: {location?.id}</h2>
             <form onSubmit={(e) => {
                 e.preventDefault();
+                const data = new FormData(e.currentTarget);
+                if (data.has("winner")) {
+                    api.put(
+                        `/api/admin/maps/${mapId}/locations/${locationId}`,
+                        { 
+                            available, 
+                            winner: data.get("winner") === "true" ? true : false,
+                            winner_text: data.get("winner_text")
+                        }
+                    )
+                        .then(() => window.location.href = "/maps/" + mapId);
+                    return;
+                }
+
                 api.put(
-                    `/api/admin/maps/${mapId}/locations/${locationId}/status`,
+                    `/api/admin/maps/${mapId}/locations/${locationId}`,
                     { available }
                 )
                     .then(() => window.location.href = "/maps/" + mapId);
@@ -48,8 +54,28 @@ const LocationSettings = () => {
                         name="available" 
                         id="available"
                         onChange={(e) => setAvailable(e.target.checked)}
-                    ></input>
+                    />
                 </div>
+                {available && (
+                    <div className="flex gap-5 mb-5">
+                        <label htmlFor="winner" className="form-label">Status</label>
+                        <select 
+                            name="winner" 
+                            id="winner" 
+                            className="text-black text-xl"
+                            onChange={(e) => setWinner(e.target.value === "true" ? true : false)}
+                        >
+                            <option value="false" className="text-xl">Pierzator</option>
+                            <option value="true" className="text-xl">Castigator</option>
+                        </select>
+                    </div>
+                )}
+                {(available && winner) && (
+                    <div className="flex items-center gap-5 mb-5">
+                        <label htmlFor="winner_text" className="form-label">Text</label>
+                        <input type="text" name="winner_text" id="winner_text" className="form-input" />
+                    </div>
+                )}
                 <div className="flex gap-5">
                     <button type="submit" className="button">Salveaza</button>
                     <a href={`/maps/${mapId}`} className="button">Anuleaza</a>
