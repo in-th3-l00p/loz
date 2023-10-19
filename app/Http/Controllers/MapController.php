@@ -28,7 +28,7 @@ class MapController extends Controller
             "rectangles" => "required|numeric"
         ]);
 
-        $resp = Http::get("http://localhost:5000", [
+        $resp = Http::get("polygon:8001", [
             "rectangles" => $data["rectangles"]
         ]);
         if ($resp->status() !== 200)
