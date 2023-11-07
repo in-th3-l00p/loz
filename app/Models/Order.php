@@ -10,7 +10,8 @@ class Order extends Model
     use HasFactory;
     
     protected $fillable = [
-        "status", "amount", "currency", "description", "billable", "billing_address"
+        "status", "amount", "currency", "description", "billable", "billing_address",
+        "env_key", "data", "cipher", "iv"
     ];
 
     public function location() {

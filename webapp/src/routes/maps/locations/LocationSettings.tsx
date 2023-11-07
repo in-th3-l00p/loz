@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "../../utils/api";
-import { Location } from "../../utils/types";
+import api from "../../../utils/api";
+import { Location } from "../../../utils/types";
 
 const LocationSettings = () => {
     const { mapId, locationId } = useParams();

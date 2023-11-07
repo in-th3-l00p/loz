@@ -26,7 +26,7 @@ Route::middleware("auth:sanctum")->group(function () {
 
     Route::get(
         "/payment/ipn",
-        [PaymentController::class, "ipn"]
+        [PaymentController::class, "ipnRedirect"]
     )->name("payment.ipn.redirect");
     Route::post(
         "/payment/ipn",

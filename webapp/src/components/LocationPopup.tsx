@@ -24,11 +24,11 @@ const UserCard: React.FC<UserCardProps> = ({ id, className }) => {
 
     return (
         <div className={"bg-transparent flex flex-row gap-2 items-center " + className}>
-            <img
+            {/* <img
                 className="h-14 w-14 rounded-full bg-neutral-200"
                 src={user?.pfp_path}
                 alt="profile"
-            />
+            /> */}
             <div className="flex flex-col justify-around">
                 <label className="font-semibold text-lg text-black">{user?.name}</label>
                 <label className="font-light text-black">{user?.email}</label>
@@ -58,7 +58,7 @@ export const LOCATION_STATUS = {
     available: "available",
     unavailable: "unavailable",
     winner: "winner",
-    loser: "loser",
+    loser: "not winner",
     claimed: "claimed",
 };
 
@@ -126,11 +126,11 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                                 Cumparata de: {location.claimed_by}
                             </p> 
                         }
-                        {location.claimed_by &&
+                        {(location.claimed_by && location.claimed_at) && (
                             <p className="text-black">
-                                Cumparata pe data de: {location.claimed_at?.toISOString()}
+                                Cumparata pe data de: {new Date(location.claimed_at).toUTCString()}
                             </p> 
-                        }
+                        )}
                         <div className="flex gap-5 mt-5">
                             <a 
                                 href={`/maps/${id}/locations/${location.id}`} 
@@ -181,11 +181,11 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                                     <label className="text-black">Pret: {location.price}</label>
                                     <PopupButton
                                         className="mt-6"
-                                        onClick={() => addToCart(parseInt(id!), location.id)}
                                         color={COLORS.available.text}
                                         backgroundColor={
                                             COLORS.available.primary
                                         }
+                                        location={location}
                                     >
                                         Adauga in cos
                                     </PopupButton>
@@ -248,7 +248,7 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                             </>
                         )}
 
-                        {location.status == LOCATION_STATUS.winner && (
+                        {location.status === LOCATION_STATUS.winner && (
                             <>
                                 <LocationPopupTitle
                                     backgroundColor={COLORS.winner.primary}
@@ -265,13 +265,15 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                                         color: COLORS.winner.text,
                                     }}
                                 >
-                                    <div className="w-full h-0 pb-[60%] relative">
-                                        <img
-                                            className="absolute left-0 top-0 w-full h-full object-cover"
-                                            src={location.image_path}
-                                            alt="location"
-                                        />
-                                    </div>
+                                    {location.image_path && (
+                                        <div className="w-full h-0 pb-[60%] relative">
+                                            <img
+                                                className="absolute left-0 top-0 w-full h-full object-cover"
+                                                src={BACKEND + location.image_path}
+                                                alt="location"
+                                            />
+                                        </div>
+                                    )}
                                     <label className="text-black">Status: {location.status}</label>
                                     <label className="text-black">Pret: {location.price}</label>
                                     {location.claimed_by && (
@@ -300,13 +302,15 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                                         color: COLORS.loser.text,
                                     }}
                                 >
-                                    <div className="w-full h-0 pb-[60%] relative">
-                                        <img
-                                            className="absolute left-0 top-0 w-full h-full object-cover"
-                                            src={location.image_path}
-                                            alt="location"
-                                        />
-                                    </div>
+                                    {location.image_path && (
+                                        <div className="w-full h-0 pb-[60%] relative">
+                                            <img
+                                                className="absolute left-0 top-0 w-full h-full object-cover"
+                                                src={BACKEND + location.image_path}
+                                                alt="location"
+                                            />
+                                        </div>
+                                    )}
                                     <label className="text-black">Status: {location.status}</label>
                                     <label className="text-black">
                                         Premiu: {location.winner_text}
@@ -355,7 +359,7 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                             </>
                         )}
 
-                        {location.status == LOCATION_STATUS.winner && (
+                        {location.status === LOCATION_STATUS.winner && (
                             <>
                                 <LocationPopupTitle
                                     backgroundColor={COLORS.winner.primary}
@@ -372,20 +376,22 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                                         color: COLORS.winner.text,
                                     }}
                                 >
-                                    <div className="w-full h-0 pb-[60%] relative">
-                                        <img
-                                            className="absolute left-0 top-0 w-full h-full object-cover"
-                                            src={location.image_path}
-                                            alt="location"
-                                        />
-                                    </div>
+                                    {location.image_path && (
+                                        <div className="w-full h-0 pb-[60%] relative">
+                                            <img
+                                                className="absolute left-0 top-0 w-full h-full object-cover"
+                                                src={BACKEND + location.image_path}
+                                                alt="location"
+                                            />
+                                        </div>
+                                    )}
                                     <PopupButton
-                                        onClick={() => {}}
                                         color={COLORS.winner.text}
                                         backgroundColor={COLORS.winner.primary}
+                                        location={location}
                                     >
                                         Schimba imaginea
-                                    </ PopupButton>
+                                    </PopupButton>
                                     <label className="text-black">Status: {location.status}</label>
                                     <label className="text-black">Pret: {location.price}</label>
                                     {location.claimed_by && (
@@ -398,7 +404,7 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                             </>
                         )}
 
-                        {location.status == LOCATION_STATUS.loser && (
+                        {location.status === LOCATION_STATUS.loser && (
                             <>
                                 <LocationPopupTitle
                                     backgroundColor={COLORS.loser.primary}
@@ -414,17 +420,19 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                                         color: COLORS.loser.text,
                                     }}
                                 >
-                                    <div className="w-full h-0 pb-[60%] relative">
-                                        <img
-                                            className="absolute left-0 top-0 w-full h-full object-cover"
-                                            src={location.image_path}
-                                            alt="location"
-                                        />
-                                    </div>
+                                    {location.image_path && (
+                                        <div className="w-full h-0 pb-[60%] relative">
+                                            <img
+                                                className="absolute left-0 top-0 w-full h-full object-cover"
+                                                src={BACKEND + location.image_path}
+                                                alt="location"
+                                            />
+                                        </div>
+                                    )}
                                     <PopupButton
-                                        onClick={() => {}}
                                         color={COLORS.loser.text}
                                         backgroundColor={COLORS.loser.primary}
+                                        location={location}
                                     >
                                         Schimba imaginea
                                     </PopupButton>

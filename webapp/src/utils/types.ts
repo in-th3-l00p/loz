@@ -9,13 +9,14 @@ export interface User {
 
 export interface Location {
     id: number;
+    map_id: number;
     points: [number, number][];
     status: string;
     price?: number;
     image_path?: string;
     winner_text?: string;
     claimed_by?: number;
-    claimed_at?: Date;
+    claimed_at?: string;
 }
 
 export interface AdminLocation {
@@ -27,7 +28,7 @@ export interface AdminLocation {
     image_path: string;
     winner_text: string;
     claimed_by: number;
-    claimed_at: Date;
+    claimed_at: string;
 }
 
 export interface Map {

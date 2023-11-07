@@ -12,8 +12,9 @@ import api from "./utils/api";
 import Home from "./routes/Home";
 import MapCreate from "./routes/maps/MapCreate";
 import MapDisplay from './routes/maps/Map';
-import LocationSettings from './routes/maps/LocationSettings';
+import LocationSettings from './routes/maps/locations/LocationSettings';
 import Cart from './routes/Cart';
+import LocationRedeem from './routes/maps/locations/LocationRedeem';
 
 const router = createBrowserRouter([
     {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
     {
         path: "/cart",
         element: <Cart />
+    },
+    {
+        path: "/maps/:mapId/locations/:locationId/redeem",
+        element: <LocationRedeem />
     }
 ]);
 

@@ -38,6 +38,8 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::apiResource("maps", MapController::class)
         ->except(["index", "show", "update"]);
 
+    Route::get("/locations", [LocationController::class, "index"])
+        ->name("locations.owned");
     Route::put(
         "/maps/{map}/locations/{location}/claim",
         [LocationController::class, "claim"]

@@ -1,4 +1,6 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { Location } from "../utils/types";
+import api from "../utils/api";
 
 interface PopupProps {
     children: React.ReactNode;
@@ -45,17 +47,37 @@ const Popup: React.FC<PopupProps> = ({ children, className, x, y, direction, sty
 }
 
 interface PopupButtonProps {
-    onClick: () => any;
     className?: string;
     color: string;
     backgroundColor: string;
-    children: ReactNode
+    children: ReactNode;
+    location: Location;
 }
 
-export const PopupButton: React.FC<PopupButtonProps> = ({ onClick, className, color, backgroundColor, children }) => {
+export const PopupButton: React.FC<PopupButtonProps> = ({ location, className, color, backgroundColor, children }) => {
+    const input = useRef<HTMLInputElement>(null);
+
     return (
+      <>
+        <input 
+          ref={input} type="file" accept="image/png" className="hidden"
+          onChange={(e) => {
+            if (e.currentTarget.files?.length !== 1)
+                return;
+            const formData = new FormData();
+            formData.append("image", e.currentTarget.files.item(0)!);
+            api.post(
+                `/api/maps/${location.map_id}/locations/${location.id}/image`, 
+                formData
+            )
+                .then(() => window.location.reload());
+          }}
+        />
         <button
-            onClick={onClick}
+            onClick={() => {
+              if (input.current)
+                input.current.click(); 
+            }}
             className={
                 "px-4 py-2 w-full hover:opacity/80 transition-all active:scale-110 " +
                 className
@@ -64,6 +86,7 @@ export const PopupButton: React.FC<PopupButtonProps> = ({ onClick, className, co
         >
             {children}
         </button>
+      </>
     );
 }
 

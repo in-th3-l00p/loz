@@ -18,6 +18,10 @@ return new class extends Migration
             $table->string('currency', 6);
             $table->text('description')->nullable()->default(null);
             $table->json('billing_address');
+            $table->string("env_key")->nullable();
+            $table->string("data")->nullable();
+            $table->string("cipher")->nullable();
+            $table->string("iv")->nullable();
             $table->timestamps();
         });
     }

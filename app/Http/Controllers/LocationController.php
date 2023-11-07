@@ -14,6 +14,12 @@ class LocationController extends Controller
     public function __construct() {
     }
 
+    public function index() {
+        // $this->authorize("owned_locations");
+        $locations = Location::where("user_id", "=", auth()->user()->id)->get();
+        return LocationResource::collection($locations);
+    }
+
     public function show(Map $map, Location $location) {
         return new LocationResource($location);
     }

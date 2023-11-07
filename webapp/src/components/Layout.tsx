@@ -12,7 +12,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
         <>
             <header className={"w-full bg-indigo-950 py-3 px-20 flex justify-between items-center"}>
-                <h1 className={"text-2xl font-bold"}>Lozul cel MARE</h1>
+                <a href="/"><h1 className={"text-2xl font-bold"}>Lozul cel MARE</h1></a>
                 {auth.user !== null ? (
                     <div className="flex gap-5">
                         {!auth.user.admin && (

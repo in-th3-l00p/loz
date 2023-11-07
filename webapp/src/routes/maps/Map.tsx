@@ -145,6 +145,10 @@ const MapDisplay = () => {
             drawMap();
         }
     }, [canvasRef.current, loading]);
+    useEffect(() => {
+        if (map && map.locations)
+            console.log(map.locations[24]);
+    }, [map]);
 
     if (loading)
         return <p>loading...</p>

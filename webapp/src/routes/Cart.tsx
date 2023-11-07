@@ -80,7 +80,10 @@ const Cart = () => {
                                 email: "test@example.com",
                                 mobilePhone: "0746504264"
                             }))
-                            .then(resp => setKeys(resp.data))
+                            .then(resp => {
+                                setKeys(resp.data);
+                                localStorage.setItem("cart", "[]");
+                            })
                             .catch(err => setUnavailable(() => err.response.data.unavailable));
                     }}
                 >

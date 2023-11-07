@@ -1,5 +1,5 @@
-import React, {useContext, useEffect, useState} from "react";
-import { Map } from "../utils/types";
+import React, {useContext, useEffect, useRef, useState} from "react";
+import { Location, Map } from "../utils/types";
 import api from "../utils/api";
 
 import "./../styles/home.css";
@@ -17,32 +17,104 @@ const MapDisplay: React.FC<{ map: Map }> = ({ map }) => {
     );
 }
 
+const LocationDisplay: React.FC<{ location: Location }> = ({ location }) => {
+    const fileInput = useRef<HTMLInputElement>(null);
+
+    return (
+        <div className="bg-indigo-950 p-10 rounded-md shadow-2xl">
+            <h2 className="text-3xl mb-5">Locatie #{location.id}</h2>
+            <p className="mb-5">Id harta: <a href={`/maps/${location.map_id}`}>{location.map_id}</a></p>
+            {location.image_path && (
+                <>
+                    <p>Imagine:</p>
+                    <img 
+                        src={"http://localhost:8000" + location.image_path} 
+                        alt="location" 
+                        className="w-32 h-32 m-5" 
+                    />
+                </>
+            )}
+
+            <span className="flex gap-5">
+                <a className="button" href={`/maps/${location.map_id}/locations/${location.id}/redeem`}>
+                    Razuire
+                </a>
+
+                <input 
+                    ref={fileInput} type="file" accept="image/png" className="hidden" 
+                    onChange={(e) => {
+                        if (e.currentTarget.files?.length !== 1)
+                            return;
+                        const formData = new FormData();
+                        formData.append("image", e.currentTarget.files.item(0)!);
+                        api.post(
+                            `/api/maps/${location.map_id}/locations/${location.id}/image`, 
+                            formData
+                        )
+                            .then(() => window.location.reload());
+                    }}
+                />
+                <button 
+                    type="button" className="button"
+                    onClick={() => {
+                        if (fileInput.current)
+                            fileInput.current.click();
+                    }}
+                >
+                    Incarca imagine
+                </button>
+            </span>
+        </div>
+    );
+}
+
 const Home = () => {
     const auth = useContext(AuthContext);
     const [maps, setMaps] = useState<Map[]>([]);
+    const [locations, setLocations] = useState<Location[]>();
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         api.get("/api/maps")
             .then(resp => setMaps(resp.data["data"]))
             .finally(() => setLoading(false));
+        if (auth.user && !auth.user?.admin) {
+            api.get("/api/locations")
+                .then(resp => setLocations(resp.data["data"]))
+                .finally(() => setLoading(false));
+        }
     }, []);
 
     if (loading)
         return <p>loading...</p>
     return (
-        <section className={"p-10 flex flex-wrap gap-10"}>
-            {maps.map((map, index) =>
-                <MapDisplay key={index} map={map} />
+        <div>
+            {auth.user && !auth.user.admin && (
+                <section className="p-10">
+                    <h2 className="text-xl mb-5">Locatiile mele:</h2>
+                    <div className="flex flex-col flex-wrap gap-10">
+                        {locations && locations?.map((location, index) => (
+                            <LocationDisplay key={index} location={location} />
+                        ))}
+                    </div>
+                </section>
             )}
-            {auth.user?.admin && (
-                <Link to={"/maps/create"} className={"map-display justify-center"}>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-36 h-36">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                </Link>
-            )}
-        </section>
+            <section className={"p-10"}>
+                <h2 className="text-xl mb-5">Harti</h2>
+                <div className="flex flex-wrap gap-10">
+                    {maps.map((map, index) =>
+                        <MapDisplay key={index} map={map} />
+                    )}
+                    {auth.user?.admin && (
+                        <Link to={"/maps/create"} className={"map-display justify-center"}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-36 h-36">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                        </Link>
+                    )}
+                </div>
+            </section>
+        </div>
     );
 }
 

@@ -15,7 +15,8 @@ use Netopia\Payment\Request\PaymentAbstract;
 class PaymentController extends Controller
 {
     public $paymentUrl = "http://sandboxsecure.mobilpay.ro";
-    public $x509FilePath = "/home/intheloop/Desktop/loz/sandbox.2WTM-EA5C-J0BK-NE1X-C5V5.public.cer";
+    public $publicX509FilePath = "/home/intheloop/Desktop/loz/sandbox.2XI1-LBXB-L1ER-Q74C-VUYR.public.cer";
+    public $privateX509FilePath = "/home/intheloop/Desktop/loz/sandbox.2XI1-LBXB-L1ER-Q74C-VUYRprivate.key";
 
     public function submit(Request $request) {
         $request->validate([
@@ -46,9 +47,16 @@ class PaymentController extends Controller
             return response([ "unavailable" => $unavailable ], 400);
 
         $cost = 0;
-        foreach ($items as $item)
+        foreach ($items as $item) {
             $cost += $item["location"]->price;
+            $item["location"]->update([
+                "available" => false,
+                "user_id" => auth()->user()->id,
+                "claimed_at" => now()
+            ]);
+        }
         $order = Order::create([
+            // "locations" => $items,
             "status" => "not_started",
             "amount" => $cost,
             "currency" => "RON",
@@ -65,8 +73,8 @@ class PaymentController extends Controller
         //     $item["location"]->update(["order_id" => $order->id]);
 
         $paymentRequest = new Card();
-        $paymentRequest->signature = "2WTM-EA5C-J0BK-NE1X-C5V5";
-        $paymentRequest->orderId = md5(uniqid(rand()));
+        $paymentRequest->signature = "2XI1-LBXB-L1ER-Q74C-VUYR";
+        $paymentRequest->orderId = $order->id;
         $paymentRequest->confirmUrl = "http://localhost:3000";
         $paymentRequest->returnUrl = "http://localhost:8000/payment/ipn";
 
@@ -85,12 +93,18 @@ class PaymentController extends Controller
         $billingAddress->mobilePhone = $request->mobilePhone;
         $paymentRequest->invoice->setBillingAddress($billingAddress);
 
-        $paymentRequest->encrypt($this->x509FilePath);
+        $paymentRequest->encrypt($this->publicX509FilePath);
         $env_key = $paymentRequest->getEnvKey();
         $data = $paymentRequest->getEncData();
         $cipher = $paymentRequest->getCipher();
         $iv = $paymentRequest->getIv();
-        $order->update([ "status" => "pending" ]);
+        $order->update([ 
+            "status" => "pending",
+            "env_key" => $env_key,
+            "data" => $data,
+            "cipher" => $cipher,
+            "iv" => $iv
+        ]);
         return [
             "env_key" => $env_key,
             "data" => $data,
@@ -99,13 +113,23 @@ class PaymentController extends Controller
         ];
     }
 
-    public function ipn() {
+    public function ipnRedirect(Request $request) {
+        $order = Order::findOrFail($request->orderId); 
+        // return view("processIpn", [
+        //     "env_key" => $order->env_key,
+        //     "data" => $order->data,
+        //     "cipher" => $order->cipher,
+        //     "iv" => $order->iv
+        // ]);
+        return redirect()->to("http://localhost:3000");
+    }
+
+    public function ipn(Request $request) {
         $errorType = PaymentAbstract::CONFIRM_ERROR_TYPE_NONE;
         $errorCode = 0;
         $errorMessage = '';
         $cipher     = 'rc4';
         $iv         = null;
-        error_log("test");
 
         if(array_key_exists('cipher', $_POST))
         {
@@ -119,31 +143,44 @@ class PaymentController extends Controller
         if (strcasecmp($_SERVER['REQUEST_METHOD'], 'post') == 0){
             if(isset($_POST['env_key']) && isset($_POST['data'])){
                 try {
-                    $paymentRequestIpn = PaymentAbstract::factoryFromEncrypted($_POST['env_key'], $_POST['data'], $this->x509FilePath, null, $cipher, $iv);
+                    $paymentRequestIpn = PaymentAbstract::factoryFromEncrypted(
+                        $_POST['env_key'], 
+                        $_POST['data'], 
+                        $this->privateX509FilePath, 
+                        null, 
+                        $cipher, 
+                        $iv
+                    );
                     $rrn = $paymentRequestIpn->objPmNotify->rrn;
                     if ($paymentRequestIpn->objPmNotify->errorCode == 0) {
                         switch($paymentRequestIpn->objPmNotify->action){
                             case 'confirmed':
                                 //update DB, SET status = "confirmed/captured"
+                                error_log("confirmed");
                                 $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
                                 break;
                             case 'confirmed_pending':
                                 //update DB, SET status = "pending"
+                                error_log("pending");
                                 $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
                                 break;
                             case 'paid_pending':
+                                error_log("paid_pending");
                                 //update DB, SET status = "pending"
                                 $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
                                 break;
                             case 'paid':
+                                error_log("paid");
                                 //update DB, SET status = "open/preauthorized"
                                 $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
                                 break;
                             case 'canceled':
+                                error_log("canceled");
                                 //update DB, SET status = "canceled"
                                 $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
                                 break;
                             case 'credit':
+                                error_log("credit");
                                 //update DB, SET status = "refunded"
                                 $errorMessage = $paymentRequestIpn->objPmNotify->errorMessage;
                                 break;
@@ -165,7 +202,7 @@ class PaymentController extends Controller
             }else{
                 $errorType = PaymentAbstract::CONFIRM_ERROR_TYPE_PERMANENT;
                 $errorCode = PaymentAbstract::ERROR_CONFIRM_INVALID_POST_PARAMETERS;
-                $errorMessag = 'mobilpay.ro posted invalid parameters';
+                $errorMessage = 'mobilpay.ro posted invalid parameters';
             }
 
         } else {
