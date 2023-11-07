@@ -35,9 +35,21 @@ services:
             - '8001:5000'
         networks:
             - app
+    redis:
+        image: redis:6.2-alpine
+        restart: always
+        ports:
+          - '6379:6379'
+        command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+        volumes: 
+          - cache:/data
+        networks:
+          - app
 networks:
     app:
         driver: bridge
 volumes:
     mysql:
+        driver: local
+    cache:
         driver: local
