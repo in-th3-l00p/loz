@@ -52,9 +52,10 @@ interface PopupButtonProps {
     backgroundColor: string;
     children: ReactNode;
     location: Location;
+    onClick?: () => void;
 }
 
-export const PopupButton: React.FC<PopupButtonProps> = ({ location, className, color, backgroundColor, children }) => {
+export const PopupButton: React.FC<PopupButtonProps> = ({ onClick, location, className, color, backgroundColor, children }) => {
     const input = useRef<HTMLInputElement>(null);
 
     return (
@@ -75,6 +76,11 @@ export const PopupButton: React.FC<PopupButtonProps> = ({ location, className, c
         />
         <button
             onClick={() => {
+              if (onClick) {
+                onClick();
+                return;
+              }
+
               if (input.current)
                 input.current.click(); 
             }}

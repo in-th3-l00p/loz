@@ -186,6 +186,7 @@ const LocationPopup: React.FC<LocationPopupProps> = ({
                                             COLORS.available.primary
                                         }
                                         location={location}
+                                        onClick={() => addToCart(location.map_id, location.id)}
                                     >
                                         Adauga in cos
                                     </PopupButton>
